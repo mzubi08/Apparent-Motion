@@ -1,0 +1,101 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="utf-8" />
+    <title>Test Phaser</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+
+  <link rel="stylesheet" href="skeleton.css">
+  <style>
+    .inp {
+      border: 1px solid #949494;
+      border-radius: 3px;
+      padding: 10px;
+      font-size: 110%;
+    }
+  </style>
+</head>
+<body>
+<div class=containter style="padding-left: 10px; padding-right: 10px; padding-top: 10px">
+<!For aligning the title if wanted: style="text-align:center;" !>
+<h1>Apparent Motion Online Application</h1>
+<h4><a href="index.html">Go Back</a></h4>
+<h2>Instructions for Use</h2>
+    <div class="row">
+    <h4>Placing Objects</h4>
+    <p>
+    To place an object, you simply need to select which object from the shapes library you would like to place. You can do so by clicking one of the respective buttons, shown below. 
+    <br>
+    <br>
+    <img src="images/1.png" width=200px title="The buttons for the shape library">
+    <br>
+    <br>
+    Upon selecting a shape, the button for that shape will remain pressed: it functions as a toggle. This is because after pressing it you are able to place a shape as many times as you want. To end this function, you can either select another shape's button, any of the modification buttons, or start dragging an already-placed shape.
+    <br>
+    <br>
+    <h4>Selecting a Color</h4>
+    You can modify the colors by using the Color Picker towards the top of the page. This allows you to select the current color to work with: this color is used when creating new objects and when repainting existing ones.
+    <br> NOTE: This color picker is an HTML5 element and is best used on modern browsers. Older browsers such as Internet Explorer 11 will not properly render this element. It will vary depending on what browser and device you are using.
+    <br>The photo below is of the Color Picker in Firefox 68.0.2 on Mac OS Mojave 10.14.6.
+    <br>
+    <br>
+    <img src="images/2.png" title="Color Picker in Firefox 68.0.2 on Mac OS Mojave 10.14.6" width=250px>
+        <br>
+    <img src="images/8.png" width=250px title="The Color Picker for Mac OS Mojave 10.14.6">
+    <br>
+    On some devices there may not be an "Enter", "Set", or "Confirm" button in the system's Color Picker. In those cases, you may have to Double Click the desired color to confirm it. On Mac OS Mojave 10.14.6, you only need to select the color in the system's Color Picker window with no confirmation necessary.
+    <br>
+    <br>
+    <h4>Selecting a Size</h4>
+    The shapes you create can have 1 of 3 sizes. The currently selected size will always appear pressed. To change the size of new shapes you can select from the bank of buttons shown below:
+    <br>
+    <br>
+    <img src="images/3.png" width=200px title="Size Selectors, Mediaum size selected">
+    <br>
+    <br>
+    <h4>Modifying & Deleting</h4>
+    <img src="images/4.png" title="Modification Button Bank, Delete Function Selected" width=130px>
+    <br>
+    The Delete Button is the button with a Trash Can icon in the button bank shown above. ONce selected, you can click any shape you would like to delete.
+    <br> The Copy Button allows you to copy objects to other frames. Once selected, you can click any object to copy it to the other two frames. 
+    <br> The Repaint Button allows you to change the color of existing objects. Once selected, you can repaint objects with the color currently selected in the Color Picker by clicking on them.
+    <br> All of these buttons will remain pressed after being selected, as they are toggles. To turn one off, either select another or select the button again. They cannot be used simutaneously.
+    <br>
+    <br>
+    <h3>Extra Functions</h3>
+    <img src="images/5.png" width=130px title="The Ghost Button and Grid Button">
+    <br>
+    The Ghost Button allows you to see the outline of other shapes within the other frames. For example, you will see the the outline of objects from Frame 3 in Frames 1 and 2. 
+    <br> The Grid Button lays a 3x3 grid within each frame to help coordinate the placement of objects.
+    <br> Both are toggles and can be used simutaneously. To turn them on/off just click the button to toggle their state.
+    <br>
+    <br>
+    <h3>Flipping the Frames</h3>
+    <img src="images/7.png" title="Flip Settings at their defaults" width=400px>
+    <br>
+    First, adjust the Flip Settings shown above. The Display Duration slider adjusts how long each fram remains on the screen (in milliseconds). The Blanktime Duration Slider adjusts how long white-space is shown inbetween frames (in milliseconds). 
+    <br>
+    The Frame Selector Radio Buttons tell the application what frames to flip between. The options available are: Between Frames 1 & 2, or between Frames 1, 2, and 3.
+    <br>
+    <br>
+    To start/stop the flipping of frames, press the Start Flip Button. While the flipping is active, the button will remain pressed. To stop the flipping of frames press the Start Flip Button again. 
+    <br>
+    <br>
+    <img src="images/6.png" title="Start Flip Button" width=250px>
+    <br>
+    <br>
+    <h3>Modeling Motion</h3>
+    Those instructions go here.
+    </p>
+    </div> 
+</div>
+
+</body>
+</html>

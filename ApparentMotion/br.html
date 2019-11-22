@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Binocular Rivalry Demo</title>
+    <style>
+    body
+        {
+            height: 100%;
+            width:100%;
+        }
+      /* canvas {
+        width: 100%;
+        height:100%
+      } */
+      .btn-group button {
+        background-color: #777700; /* Green background */
+        border: 1px solid orange; /* Green border */
+        color: white; /* White text */
+        padding: 10px 24px; /* Some padding */
+        cursor: pointer; /* Pointer/hand icon */
+        float: left; /* Float the buttons side by side */
+      }
+
+      /* Clear floats (clearfix hack) */
+      .btn-group:after {
+        content: "";
+        clear: both;
+        display: table;
+      }
+
+      .btn-group button:not(:last-child) {
+        border-right: none; /* Prevent double borders */
+      }
+
+      /* Add a background color on hover */
+      .btn-group button:hover {
+        background-color: #3e8e41;
+      }
+
+      .slidecontainer {
+        width: 100%;
+      }
+
+  .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 15px;
+    border-radius: 5px;
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+  }
+
+  .slider:hover {
+    opacity: 1;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+  }
+
+  .slider::-moz-range-thumb {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: #4CAF50;
+    cursor: pointer;
+  }
+
+    .column {
+    float: left;
+    width: 20%;
+    padding: 10px;
+  }
+  /* Clearfix (clear floats) */
+    .row::after {
+      content: "";
+      clear: both;
+      display: table;
+    }
+    </style>
+</head>
+<body>
+  <script src="js/phaser.min.js"></script>
+  <script src="js/game.js"></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML' async></script>
+
+      <div class="btn-group">
+        <button title="Draw in gray (the background color)" onClick="choose(0xe7e7e7)" >Gray</button>
+        <button title="Draw in red" onClick="choose(0xfc0000)">Red</button>
+        <button title="Draw in cyan" onClick="choose(0x00e7e7)">Cyan</button>
+        <button title="Clear the screen (return to all gray background)" onClick="clearDrawing()">Clear</button>
+        <button title="Draw a class pattern of horizontal and vertical stripes" onClick="drawStripes()">Stripes</button>
+        <button title="Demonstrate the Phenomenon of Continuous Lag Suppression" onClick="continuousSuppression()">Continuous Lag Suppression</button>
+        <button title="Create a pattern of red and cyan dots that you should be able to fuse together to create a coherent interpretation.  When you do, the dots should appear to have a depth gradient going either side to side or up and down" onClick="drawDepthsFew()">Depth with Few Spots</button>
+        <button title="This will create a 10 X 10 shape behind or in font of a background, in a random location" onClick="drawDepthStereogram()">Random Dot Stereogram</button>
+        <button title="Explore Binocular fusion using two real world images taken from slightly different vantage points" onClick="createRealDepth()">Depth with Images</button>
+
+      </div>
+      <button title="Run the Neural Network Model" onClick="runModel()">Run Model</button>
+      <button title="Stop the Neural Network" onClick="stopModel()">Stop Model</button>
+      <button title="Ask the model to blink its eyes, which resets all node activations to zero" id="button", onClick="reset(1)">Blink eyes</button>
+      <button title="Completely reset the model" id="button", onClick="reset(2)">Reset model</button>
+
+      <div class="row">
+          <div class="column">
+            <div class="""slidecontainer">
+              <p align="center"> Cyan-Red bias: <span id="bias"></span></p>
+              <input title="Far left: strong bias to see world with the left, cyan-colored eye.  Far right: strong bias to see world with the right, red-colored eye" type="range" min="-100" max="100" value="0" class="slider" id="biasRange">
+          </div>
+        </div>
+          <div class="column">
+            <div class="""slidecontainer">
+              <!--
+              <p align="center">The Parameter that Must Not Be Named: <span id="fatigue"></span></p>
+               <input title="Even naming this parameter would give too much away in terms of how I was thinking about modeling the phenomenology" type="range" min="0" max="100" value="50" class="slider" id="fatigueRange">
+              -->
+              <p align="center">Habituation: <span id="fatigue"></span></p>
+               <input title="How much habituation of units is there over time" type="range" min="0" max="100" value="50" class="slider" id="fatigueRange">
+
+            </div>
+        </div>
+        <div class="column">
+          <div class="""slidecontainer">
+            <p align="center">External Drive: <span id="external"></span></p>
+            <input title="How much are the activations driven by the colors in the word, rather than internal dynamics in the model's mind" type="range" min="0" max="100" value="50" class="slider" id="externalRange">
+          </div>
+        </div>
+      <div class="column">
+        <div class="""slidecontainer">
+          <p align="center">Randomness: <span id="randomness"></span></p>
+          <input title="How much randomness is added to each unit's activation" type="range" min="1" max="100" value="50" class="slider" id="randomnessRange">
+        </div>
+      </div>
+      </div>
+
+<div id="phaser-example"></div>
+
+  <script>
+
+  var decaySlider = document.getElementById("decayRange");
+  var decayValue = document.getElementById("decay");
+  var fatigueSlider = document.getElementById("fatigueRange");
+  var fatigueValue = document.getElementById("fatigue");
+  var refreshSlider = document.getElementById("refreshRange");
+  var refreshValue = document.getElementById("refresh");
+  var randomnessSlider = document.getElementById("randomnessRange");
+  var randomnessValue = document.getElementById("randomness");
+  var biasSlider = document.getElementById("biasRange");
+  var biasValue = document.getElementById("bias");
+  var externalSlider = document.getElementById("externalRange");
+  var externalValue  = document.getElementById("external");
+  var decay=0.01; //how much cells just decay back down to 0
+  var fatigue=50/100; //how quickly drops the peak level of activity for active units
+  var randomness=50/30;
+  var bias =0;
+  var externalDrive=0.5;
+  // decayValue.innerHTML = decaySlider.value; //parseInt(output.innerHTML) to convert to integer
+  fatigueValue.innerHTML = fatigueSlider.value;
+  // refreshValue.innerHTML = refreshSlider.value;
+  randomnessValue.innerHTML = randomnessSlider.value;
+  biasValue.innerHTML = biasSlider.value;
+  externalValue.innerHTML = externalSlider.value;
+  // decaySlider.oninput = function() {
+  //   decayValue.innerHTML = this.value;
+  //   decay=parseInt(decayValue.innerHTML)/500;//convert text to number, and from 0-100 to 0-1
+  // }
+
+    biasSlider.oninput = function() {
+    biasValue.innerHTML = this.value;
+    bias=parseInt(biasValue.innerHTML)/1000;//convert text to number, and from 0-100 to 0-1
+  }
+
+    fatigueSlider.oninput = function() {
+    fatigueValue.innerHTML = this.value;
+// below is the general equation to map one range onto another.  Here, mapping outputs to 0.9-1.0
+    //fatigue=0.9+((0.999-0.9)/(100-0))*(parseInt(fatigueValue.innerHTML)-0);
+    fatigue=parseInt(fatigueValue.innerHTML)/100;
+  }
+
+  //   refreshSlider.oninput = function() {
+  //   refreshValue.innerHTML = this.value;
+  //   refresh=parseInt(refreshValue.innerHTML)/500;//convert text to number, and from 0-100 to 0-1
+
+  // }
+    randomnessSlider.oninput = function() {
+    randomnessValue.innerHTML = this.value;
+    randomness=parseInt(randomnessValue.innerHTML)/30;//convert text to number, and from 0-100 to 0-1
+  }
+
+    externalSlider.oninput = function() {
+    externalValue.innerHTML = this.value;
+    externalDrive=parseInt(externalValue.innerHTML)/50;//convert text to number, and from 0-100 to 0-1
+  }
+
+  </script>
+<p>
+  <h3>About the Psychology</h3>
+  In the phenomenon of binocular rivalry, when different information is presented to a person’s two eyes such
+   that the two sources of information cannot be integrated to create a single coherent interpretation, then perceptual experience
+    alternates between the two eyes. Sometimes only the image appearing to one of the two eyes will be visible to the observer,
+    with the other eye’s image being completely suppressed.  Other times, parts of the images shown to the left and right eyes will
+    appear in fragments, with the observer being aware of an amalgamation of pieces from each eye. <br>
+
+    <div>
+    <p style="float: right;"><img src="explanation.jpg" height="400px" width="300px" ></p>
+    <p>There are different ways of projecting different information to an observer’s two eyes.  In many psychology and neuroscience laboratories,
+        liquid crystal glasses are employed that transmit different patterns of light selectively to the two eyes.  A much cheaper and
+        readily available technology simply involves having observers wear glasses with different colored lenses.  Imagine that a
+        red filter is in front of an observer’s left eye and a cyan (a combination of blue and green) filter is in front of their
+        right eye.  The red filter will selectively allow red light to pass into the eye.  A red image of equal luminance to a gray
+        background appears nearly invisible to the left eye because both the red image and the background have an equivalent amount
+        of red light that passes through the filter and this red light is the only light that passes through the filter.  A cyan image
+        will appear darker than the background in the left eye because it contains very little red light and the background contains red,
+        blue, and green light.  Accordingly, the left eye with the red filter will see cyan images as dark shapes while the right eye with
+        the cyan filter will see red images as dark shapes.<br><br>
+
+        One felicitous side effect of using red-cyan 3D glasses to present different information to the two eyes is that the observer will
+        have a phenomenologically salient cue as to whether they are seeing their visual world with their left or right eye.  Every patch
+        of their world, whether or not it contains an object, will appear tinted either red or cyan.  If a patch appears to be red, then
+        this means that the observer is seeing that patch with their left eye, while cyan-tinted patches are being seen with their right
+        eye.  These tints are subtle, lightly colored, and somewhat reminiscent of a halo.  Normally, patterns of red- and cyan-appearing
+        patches will be highly structured in both time and space.</p>
+    </div>
+    create some displays for yourself (including, perhaps, uniformly gray displays) and closely observe and report what you see.  Some
+    specific suggestion for creating the report on what you see while wearing red-cyan glasses:
+    <ul>
+      <li>Pay attention to whether different patches of your visual world are subtly tinted red or cyan.  How are different colors spatially organized?  How do these organization change over time?</li>
+      <li>When you are shown a display of horizontal red and vertical cyan stripes (by pressing the “stripes” button), how does your perception of horizontal and vertical stripes change over time?  Pay particular attention to the transitions between perceptions of horizontal versus vertical stripes.</li>
+      <li>Try blinking. How did that change your immediate perceptual experience upon re-opening your eyes?</li>
+      <li>Try creating different displays consisting of red and blue regions.  How do changes in these visual patterns change what you see over time?</li>
+      <li>When you shift your gaze to a red or blue patch, how does that change the appearance of the patch?</li>
+    </ul>
+
+  <h3>About the Computational Model</h3>
+  <div>
+  <p style="float: right;"><img src="model.jpg"  ></p>
+  <p>I have incorporated an interactive neural network organized as shown to the right. The image elements (a cyan and red blob) are
+    shown at the top, and below are two banks of neurons for the left and right eyes.  I imagined that the neurons/units within a
+    bank are organized spatially in two dimensions, such that a cyan object in the upper left portion of the display would activate
+    the upper-left unit in the left eye (remembering that the cyan dot will be invisible to the eye with the cyan filter in front of it).
+    Strong activation of this left-eye unit would lead to the subjective impression of a reddish tint in this upper-left region of the space.
+    Fleshing out this model for me, then, amounted to specifying the kinds of excitatory and inhibitory relations between the units, as
+    exemplified by the purple and green arrows, adding some randomness to each unit’s activation at each moment, and postulating that units fatigue/habituate
+    over time to the extent that they are active.  Some mechanism like habituation is needed so that once one eye become dominant in terms
+    of capturing awareness it eventually gives up control, allowing the other eye to become dominant.  This alernation of eye dominance
+    is the hallmark of binocular rivalry.<br><br>
+
+    When you press the "Run Model" button, you will see the moment-to-moment activations of each unit over time, as the units are influenced by
+    the external display and one another.  Each unit is shown as a small box. Cyan and red units for the same location completely overlap each other.
+    The middle of the box shows what the external display's
+    color is at the location visible to the unit: gray, cyan, or red.  The color of the square frame around a box shows the level of red and cyan unit activitations.
+    If the frame is strongly cyan, that means that the cyan unit for that location is highly active and the red unit is not active.  This means that the model
+    is predicting that a human would be seeing that location with their right, cyan-tinted eye.  So, typically, if a location in the display
+    is colored cyan, then it will be visible to left eye with the red filter on it, and this will tend to cause the red eye to become activated, and
+    so there will be a bright red box around the cyan-filled center.
+  </p>
+  </div>
+      In real time you can manipulate parameters underlying the behavior of the model:
+      <ul>
+        <li>Cyan-red bias: People may have a tendency to see their world more with their left or right eyes when wearing the 3D glasses.  If
+        a person has a tendency to see their world with their right, cyan-tinted eye, this can be simulated by moving the cyan-red bias slider to the left.</li>
+        <li>External Drive: How much are unit activations driven by the colors in the external display.  If a low value is given then
+        the unit activations will mostly be determined by internal dynamics.  A cyan-painted patch will externally drive a red
+      unit while a red patch externally activates a cyan unit.</li>
+        <li>Randomness: How much randomness is injected into the activations of each unit at each moment.  Higher values are more random.</li>
+        <li>Habituation: How much do active units habituate over time.  High values indicate larger amounts of habituation</li>
+      </ul>
+      Some things you might want to try with the model:
+      <ul>
+        <li>Show the model a blank gray screen and set habituation to 10 and randomness to 70.  The model should oscillate between
+        "seeing" a mostly red-tinted world to seeing a mostly cyan-tinted world.  Why?  Does the oscillation behavior continue if ranomdness is
+      set to a much lower value?  Why or why not? </li>
+        <li>Draw a small cyan-colored loop.  Set cyan-red bias to -20 so that the model will mostly be seeing the world with its right eye, and set habituation
+           to 10.  Try resetting and running the model several times.  Does the model see the world in the same way that you do? How so and how not?  </li>
+        <li> Show the model a display with a long vertical red line and a long horizontal cyan line.  Set the External Drive parameter to
+        70, habituation to 5, and the cyan-red bias to reflect which eye tends to dominate for you.  In what ways does the model's perception match and mismatch how you see the display?  How do you think
+      the model might be modified to make it better match what you see?</li>
+        <li>Show the model the lattice of cyan and red stripes by pressing the "Stripes" button.  What parameter values comes closest
+        to letting the model see the display in the same way that you do?  With these parameter values, what does the model get right and wrong
+      in terms of matching how you dynamically see this display?</li>
+      </ul>
+<!--
+comments
+-->
+  <h4>Model Details</h4>
+  Two S by S arrays of units for red and cyan eyes are created in which each unit i has a set of neighbors \(N_i\) defined as all other units with a 5 X 5
+  square centered on i.
+  $${I_{i,x,t}=\frac{\sum\limits_{{j\in \lbrace N_i \rbrace},j \neq i} A_{j,x,t}} {|N_i|}+eE_{i,x}+r\mathcal{U}(-0.5,+0.5)+bB_x-I_{i,x',t}-hH_{i,x,t}} $$
+  where \(I_{i,x,t}\) is the input to Node i, representing Eye x (left or right) at Time t <br>
+  \(E_{i,x}\) is the external signal to Eye x at Node i’s location <br>
+  \(\mathcal{U}(m,M)\) is a uniform random variable between m and M <br>
+  \(B_x\) is the bias for Eye X.  \(B_{left} + B_{right}=0\)<br>
+  x' is the complimentary eye to x <br>
+  \(H_{i,x,t}\) is the degree of habituation, calculated by:<br>
+  $${H_{i,x,t+\Delta t}=pH_{i,x,t}+(1-p)A_{i,x,t}}$$
+  \(A_i,x,t\) is the node's level of activity, calculated by:<br>
+  $${A_{i,x,t+\Delta t}=\biggl \lbrace { A_{i,x,t}+c(1-A_{i,x,t})I_{i,x,t}  \scr \hskip1em if \hskip1em \it I_{i,x,t} \ge 0 \atop A_{i,x,t}+cA_{i,x,t}I_{i,x,t}  \scr \hskip1em if \hskip1em \it I_{i,x,t} \ge 0}}$$
+   <br>
+   <i> e, r, b</i>, and <i> h </i> are source weighting parameters <br>
+   <i> p</i> and <i> c </i> are adjustment rate parameters
+</p>
+Designed and programmed by <a href="https://scholar.google.com/citations?user=PJma-ZgAAAAJ&hl=en&oi=ao">Robert Goldstone</a> (rgoldsto@indiana.edu).  <a href="http://www.indiana.edu/~pcl/">Visit our Percepts and Concepts Laboratory</a>
+</body>
+</html>
+
+…………………………..
+Dr. Robert Goldstone
+Distinguished Professor in the Department of Psychological and Brain Sciences and Program in Cognitive Science
+Indiana University
+Psychology Building
+1101 E. 10th St.
+Indiana University
+Bloomington, IN. 47405-7007
+812-855-4853 (work).  812-837-9990 (home).  812-855-4691 (fax)
+Email: rgoldsto@indiana.edu
+Percepts and Concepts Laboratory: http://cognitrn.psych.indiana.edu/

@@ -1,0 +1,206 @@
+ 
+    buttonSquare.on('pointerover', function () {this.setTint(onColor);});
+    buttonSquare.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+    	message.setText("Click in the desired frame to add the Square");
+    	var count = 0
+    	
+		back.on('pointerdown', function (pointer) {
+		
+		if (pointer.x <= 300){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x, pointer.y,shapeSize*30,shapeSize*30,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container1.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 300 && pointer.x <= 597){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x-300, pointer.y,shapeSize*30,shapeSize*30,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container2.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 597 && pointer.x <= 896){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x-597, pointer.y,shapeSize*30,shapeSize*30,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container3.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			}
+			});
+		
+			
+		
+    	}); 	
+    buttonSquare.on('pointerout', function () {this.clearTint();});
+    buttonSquare.on('pointerup', function () {this.clearTint();});
+    
+    buttonTriangle.on('pointerover', function () {this.setTint(onColor);});
+    buttonTriangle.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+    	message.setText("Click in the desired frame to add the Square");
+    	var count = 0
+    	
+		back.on('pointerdown', function (pointer) {
+		
+		if (pointer.x <= 300){
+			if (count == 0) {
+				tempShape = gameSpace.add.triangle(pointer.x, pointer.y,0,shapeSize*30,shapeSize*30,shapeSize*30,0,0,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container1.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 300 && pointer.x <= 597){
+			if (count == 0) {
+				tempShape = gameSpace.add.triangle(pointer.x-300, pointer.y,shapeSize*30,shapeSize*30,shapeSize*30,0,0,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container2.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 597 && pointer.x <= 896){
+			if (count == 0) {
+				tempShape = gameSpace.add.triangle(pointer.x-597, pointer.y,shapeSize*30,shapeSize*30,shapeSize*30,0,0,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container3.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			}
+			});
+		
+			
+		
+    	});
+    buttonTriangle.on('pointerout', function () {this.clearTint();});
+    buttonTriangle.on('pointerup', function () {this.clearTint();});
+     
+    buttonStar.on('pointerover', function () {this.setTint(onColor);});
+    buttonStar.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+    	message.setText("Click in the desired frame to add the Star");
+    	var count = 0
+    	
+		back.on('pointerdown', function (pointer) {
+		
+		if (pointer.x <= 300){
+			if (count == 0) {
+				tempShape = gameSpace.add.star(pointer.x, pointer.y, 5, shapeSize*10, shapeSize*26, currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container1.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 300 && pointer.x <= 597){
+			if (count == 0) {
+				tempShape = gameSpace.add.star(pointer.x-300, pointer.y, 5, shapeSize*10, shapeSize*26, currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container2.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 597 && pointer.x <= 896){
+			if (count == 0) {
+				tempShape = gameSpace.add.star(pointer.x-597, pointer.y, 5, shapeSize*10, shapeSize*26, currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container3.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			}
+			});
+		
+			
+		
+    	});
+    buttonStar.on('pointerout', function () {this.clearTint();});
+    buttonStar.on('pointerup', function () {this.clearTint();});
+     
+	hButton.on('pointerover', function () {this.setTint(onColor);});
+    hButton.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+    	message.setText("Click in the desired frame to add the horizontal line");
+    	var count = 0
+    	
+		back.on('pointerdown', function (pointer) {
+		
+		if (pointer.x <= 300){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x, pointer.y,shapeSize*70,2,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container1.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 300 && pointer.x <= 597){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x-300, pointer.y,shapeSize*70,2,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container2.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 597 && pointer.x <= 896){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x-597, pointer.y,shapeSize*70,2,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container3.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			}
+			});
+		
+			
+		
+    	});
+    hButton.on('pointerout', function () {this.clearTint();});
+    hButton.on('pointerup', function () {this.clearTint();});
+	
+	vButton.on('pointerover', function () {this.setTint(onColor);});
+    vButton.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+    	message.setText("Click in the desired frame to add the vertical line");
+    	var count = 0
+    	
+		back.on('pointerdown', function (pointer) {
+		
+		if (pointer.x <= 300){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x, pointer.y,2,shapeSize*70,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container1.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 300 && pointer.x <= 597){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x-300, pointer.y,2,shapeSize*70,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container2.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			} else if (pointer.x >= 597 && pointer.x <= 896){
+			if (count == 0) {
+				tempShape = gameSpace.add.rectangle(pointer.x-597, pointer.y,2,shapeSize*70,currentColor).setInteractive();
+				gameSpace.input.setDraggable(tempShape);
+				container3.add(tempShape);
+				count += 1;
+				message.setText(defaultMessage)
+				}
+			}
+			});
+		
+			
+		
+    	});
+    vButton.on('pointerout', function () {this.clearTint();});
+    vButton.on('pointerup', function () {this.clearTint();});
+    

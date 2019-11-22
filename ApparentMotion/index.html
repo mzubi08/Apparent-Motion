@@ -1,0 +1,1552 @@
+<!doctype html> 
+<html lang="en"> 
+<head> 
+    <meta charset="utf-8" />
+    <title>Test Phaser</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/phaser@3.17.0/dist/phaser.js"></script>
+    <style type="text/css">
+        body {
+            margin: 0;
+        }
+    </style>
+
+  <link rel="stylesheet" href="skeleton.css">
+  <style>
+    .inp {
+      border: 1px solid #949494;
+      border-radius: 3px;
+      padding: 10px;
+      font-size: 110%;
+    }
+  </style>
+</head>
+<body>
+
+<!--For aligning the title if wanted: style="text-align:center;" -->
+<div style="padding:10px;" class=containter>
+    <h1>Apparent Motion Online Application</h1>
+    <h4><a href="instructions.html">Instructions</a></h4>
+<div class="row">
+
+
+	<div class="two columns">
+			<h4>Flip Settings:</h4>
+			
+			Display Duration: <span id="DDT"></span><br>
+			<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="1200" value="200" class="slider" id="DDS">
+			<br>
+			Blanktime Duration: <span id="BDT"></span><br>
+			<input title="Milliseconds between frames" type="range" min="0" max="1200" value="0" class="slider" id="BDS">
+
+	</div>
+	<div class="three columns">
+	<h4>Frame Selectors:</h4>
+	<input title="Focus on *only* frames 1 & 2" type="radio" name="framesSelect" value="12" checked> 1 - 2<br>
+	<input title="Focus on frames 1, 2, and 3"type="radio" name="framesSelect" value="13"> 1 - 3
+	</div>
+	
+	
+	<div class= "seven columns">
+			<h4>Color Picker:</h4>
+			<input title="Click to select a color using your system's color picker" type="color" id="colorPicker" value="0x0000ff" style="width:20%;">
+	</div>
+
+	
+</div>
+
+
+<div class="row">
+<div class="twelve columns">
+    <hr>
+<div id="APphaser"></div>
+</div>
+</div>
+<!-- This is commented out because I simply cannot get these sliders to appear BELOW the script instead of on top. -->
+<div class="row">
+    <br>
+    <hr>
+    <h4>Model Parameters:</h4>
+</div>
+<div class="row">    
+	<div class="two columns">
+        Color: <span id="colorImpText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="0" class="slider" id="colorImpSlider">
+		<br>
+		Size: <span id="sizeText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="0" class="slider" id="sizeSlider">
+		<br>
+		Shape: <span id="shapeText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="0" class="slider" id="shapeSlider">
+
+
+			
+	</div>
+	<div class="two columns">
+		Proximity: <span id="proxText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="50" class="slider" id="proxSlider">
+		<br>
+		Consistency: <span id="consText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="50" class="slider" id="consSlider">
+		<br>
+		Motion Similarity: <span id="msText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="0" class="slider" id="msSlider">
+		
+	</div>
+	
+	<div class="two columns">
+
+		Match: <span id="matchText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="2" class="slider" id="matchSlider">
+		<br>
+		Randomness: <span id="randText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="5"  class="slider" id="randSlider">
+    </div>
+    <div class="two columns">
+		Update Speed: <span id="upSpeedText"></span><br>
+		<input title="Milliseconds each frame exisit on the screen" type="range" min="0" max="100" value="50" class="slider" id="upSpeedSlider">
+	
+	
+	</div>
+
+</div>
+</div>
+<script type="text/javascript">
+
+    var config = {
+        type: Phaser.AUTO,
+        width: 1194,
+        height: 348,
+        parent:"APphaser",
+        scene: {
+            preload: preload,
+            create: create,
+            update: update,
+        }
+    };
+	
+	// Variables I believe are needed
+	var tempShape;
+	var defaultMessage = "Messages will appear here!";
+	var messages1 = "" ;
+	var messages2 = "";
+	var messages3 = "";
+    var game = new Phaser.Game(config);
+    var onColor = 0x00ff00;
+    var clickColor = 0xA9A9A9;
+    var delItem = 0;
+    var copyItem = 0;
+    var placeItem = "";
+    var repaint = 0;
+    var message = "";
+	var ghost = 0;
+    var grid = 0;
+	
+    var hGrid1;
+    var hGrid2;
+    var hGrid3;
+    var hGrid4;
+    
+    //1
+    var vGrid1;
+    var vGrid2;
+    var vGrid3;
+    var vGrid4;
+    
+    //2
+    var vGrid5;
+    var vGrid6;
+    var vGrid7;
+    var vGrid8;
+    
+    //3
+    var vGrid9;
+    var vGrid10;
+    var vGrid11;
+    var vGrid12;
+    
+    //4
+    var vGrid13;
+    var vGrid14;
+    var vGrid15;
+    var vGrid16;
+        
+	//Drag Tracker
+	var dragXstart = 0;
+    var dragYstart = 0;
+    var lastX = 0;
+    var lastY = 255;
+
+	var colorImpSlider = document.getElementById("colorImpSlider");
+    var colorImpText = document.getElementById("colorImpText");
+    var colorImpVal = colorImpSlider.value;
+    colorImpText.innerHTML = colorImpSlider.value;
+    
+    colorImpSlider.oninput = function() {
+	colorImpText.innerHTML = this.value;
+	colorImpVal = parseInt(colorImpText.innerHTML);
+	}
+    
+    var sizeSlider = document.getElementById("sizeSlider");
+    var sizeText = document.getElementById("sizeText");
+    var sizeVal = sizeSlider.value;
+    sizeText.innerHTML = sizeSlider.value;
+    
+    sizeSlider.oninput = function() {
+	sizeText.innerHTML = this.value;
+	sizeVal = parseInt(sizeText.innerHTML);
+	}
+    
+	var shapeSlider = document.getElementById("shapeSlider");
+    var shapeText = document.getElementById("shapeText");
+    var shapeVal = shapeSlider.value;
+    shapeText.innerHTML = shapeSlider.value;
+    
+    shapeSlider.oninput = function() {
+	shapeText.innerHTML = this.value;
+	shapeVal = parseInt(shapeText.innerHTML);
+	}
+    
+	var proxSlider = document.getElementById("proxSlider");
+    var proxText = document.getElementById("proxText");
+    var proxVal = proxSlider.value;
+    proxText.innerHTML = proxSlider.value;
+    
+    proxSlider.oninput = function() {
+	proxText.innerHTML = this.value;
+	proxVal = parseInt(proxText.innerHTML);
+	}
+    
+	var consSlider = document.getElementById("consSlider");
+    var consText = document.getElementById("consText");
+    var consVal = consSlider.value;
+    consText.innerHTML = consSlider.value;
+    
+    consSlider.oninput = function() {
+	consText.innerHTML = this.value;
+	consVal = parseInt(consText.innerHTML);
+	}
+    
+	var msSlider = document.getElementById("msSlider");
+    var msText = document.getElementById("msText");
+    var msVal = msSlider.value;
+    msText.innerHTML = msSlider.value;
+    
+    msSlider.oninput = function() {
+	msText.innerHTML = this.value;
+	msVal = parseInt(msText.innerHTML);
+	}
+
+	var matchSlider = document.getElementById("matchSlider");
+    var matchText = document.getElementById("matchText");
+    var matchVal = matchSlider.value;
+    matchText.innerHTML = matchSlider.value;
+    
+    matchSlider.oninput = function() {
+	matchText.innerHTML = this.value;
+	matchVal = parseInt(matchText.innerHTML);
+	}
+
+	var randSlider = document.getElementById("msSlider");
+    var randText = document.getElementById("randText");
+    var randVal = randSlider.value;
+    randText.innerHTML = randSlider.value;
+    
+    randSlider.oninput = function() {
+	randText.innerHTML = this.value;
+	randVal = parseInt(randText.innerHTML);
+	}
+    
+	var upSpeedSlider = document.getElementById("upSpeedSlider");
+    var upSpeedText = document.getElementById("upSpeedText");
+    var upSpeedVal = upSpeedSlider.value;
+    upSpeedText.innerHTML = upSpeedSlider.value;
+    
+    upSpeedSlider.oninput = function() {
+	upSpeedText.innerHTML = this.value;
+	upSpeedVal = parseInt(upSpeedText.innerHTML);
+	}
+    
+	var durationSlider = document.getElementById("DDS");
+    var durationText = document.getElementById("DDT");
+    var durationVal = durationSlider.value;
+    durationText.innerHTML = durationSlider.value;
+    
+    durationSlider.oninput = function() {
+	durationText.innerHTML = this.value;
+	durationVal = parseInt(durationText.innerHTML);
+	}
+    
+    var BTslider = document.getElementById("BDS");
+	var BTvalue = BTslider.value;
+    var BTtext = document.getElementById("BDT");
+    BTtext.innerHTML = BTslider.value;
+    
+    BTslider.oninput = function() {
+	BTtext.innerHTML = this.value;
+	BTvalue = parseInt(BTtext.innerHTML);
+	}
+    
+    var colorPicker = document.getElementById("colorPicker");
+    var temp = colorPicker.value;
+	currentColor = String("0x"+temp.substring(1, 8));
+	
+	/*colorPicker.oninput = function() {
+	currentColor = colorPicker.value;
+	}*/
+    
+    var pointerPos;
+    var devMessage = "";
+    var text = "";
+
+	var size = "m";
+	var shapeSize = 1;
+
+    function preload ()
+    {
+    this.load.image('back','assets/backGrid.bmp');
+    this.load.image('buttonDelete','assets/buttonDelete.bmp');
+    this.load.image('buttonTriangle','assets/buttonTriangle.bmp');
+    this.load.image('buttonCircle','assets/buttonCircle.bmp');
+    this.load.image('buttonSquare','assets/buttonSquare.bmp');
+    this.load.image('buttonStar','assets/starButton.png');
+    this.load.image('buttonColor','assets/buttonColor.bmp');
+    this.load.image('button','assets/button.bmp');
+    this.load.image('buttonSize','assets/buttonSize.bmp')
+    this.load.image('rectangle','assets/rectangle.bmp')
+    this.load.image('up','assets/buttonUp.bmp')
+    this.load.image('down','assets/buttonDown.bmp')
+    this.load.image('beginFlip','assets/beginFlip.bmp')
+	this.load.image('hButton','assets/hButton.bmp')
+	this.load.image('vButton','assets/vButton.bmp')
+	this.load.image('smallButton','assets/smallButton.bmp')
+	this.load.image('medButton','assets/medButton.bmp')
+	this.load.image('largeButton','assets/largeButton.bmp')
+	this.load.image('ghostButton','assets/ghostButton.bmp')
+	this.load.image('copyButton','assets/copyButton.bmp')
+	this.load.image('paintButton','assets/buttonPaint.png')
+    this.load.image('gridButton','assets/grid.png')
+    }
+
+
+
+    function create ()
+ {
+//    This is the background of the application
+ 	var back = this.add.image(597,174,'back').setInteractive();
+    
+//    This container holds the gridlines and has its visibility toggled on/off by the user
+    var gridContainer = this.add.container(0,0);  
+    
+    //These containers I am anticipating using for ghosting
+    var ghostContainer4 = this.add.container(1193,0); 
+  	var ghostContainer3 = this.add.container(597,0);
+  	var ghostContainer2 = this.add.container(300,0);
+ 	var ghostContainer1 = this.add.container(0,0);
+ 
+    //These containers hold the shapes. #4 is the view, 1-3 are the ones the user interacts with.
+  	var container4 = this.add.container(1193,0); 
+  	var container3 = this.add.container(597,0);
+  	var container2 = this.add.container(300,0);
+ 	var container1 = this.add.container(0,0);
+
+	//I did this because it makes it easy to interact within the core 'game' from within functions
+ 	gameSpace = this
+ 	
+    //These are the grid lines
+ 	//Horizontal lines
+     hGrid1 = gameSpace.add.rectangle(600, 256/5,1200,2,0xb5b5b5);
+     hGrid2 = gameSpace.add.rectangle(600, 256*(2/5),1200,2,0xb5b5b5);
+     hGrid3 = gameSpace.add.rectangle(600, 256*(3/5),1200,2,0xb5b5b5);
+     hGrid4 = gameSpace.add.rectangle(600, 256*(4/5),1200,2,0xb5b5b5);
+     
+     //frame 1 verticals
+     vGrid1 = gameSpace.add.rectangle(300*(1/5), 127, 2, 256,0xb5b5b5);
+     vGrid2 = gameSpace.add.rectangle(300*(2/5), 127, 2, 256,0xb5b5b5);
+     vGrid3 = gameSpace.add.rectangle(300*(3/5), 127, 2, 256,0xb5b5b5);
+     vGrid4 = gameSpace.add.rectangle(300*(4/5), 127, 2, 256,0xb5b5b5);
+     
+     //frame 2 verticals
+     vGrid5 = gameSpace.add.rectangle(300+300*(1/5), 127, 2, 256,0xb5b5b5);
+     vGrid6 = gameSpace.add.rectangle(300+300*(2/5), 127, 2, 256,0xb5b5b5);
+     vGrid7 = gameSpace.add.rectangle(300+300*(3/5), 127, 2, 256,0xb5b5b5);
+     vGrid8 = gameSpace.add.rectangle(300+300*(4/5), 127, 2, 256,0xb5b5b5);
+     
+     //frame 3 verticals
+     vGrid9 = gameSpace.add.rectangle(600+300*(1/5), 127, 2, 256,0xb5b5b5);
+     vGrid10 = gameSpace.add.rectangle(600+300*(2/5), 127, 2, 256,0xb5b5b5);
+     vGrid11 = gameSpace.add.rectangle(300+300*(3/5), 127, 2, 256,0xb5b5b5);
+     vGrid12 = gameSpace.add.rectangle(300+300*(4/5), 127, 2, 256,0xb5b5b5);
+     
+     //viewing frame (4) verticals
+     vGrid13 = gameSpace.add.rectangle(900+300*(1/5), 127, 2, 256,0xb5b5b5);
+     vGrid14 = gameSpace.add.rectangle(900+300*(2/5), 127, 2, 256,0xb5b5b5);
+     vGrid15 = gameSpace.add.rectangle(900+300*(3/5), 127, 2, 256,0xb5b5b5);
+     vGrid16 = gameSpace.add.rectangle(900+300*(4/5), 127, 2, 256,0xb5b5b5);
+     
+     //add them to the grid container
+     gridContainer.add(hGrid1);
+     gridContainer.add(hGrid2);
+     gridContainer.add(hGrid3);
+     gridContainer.add(hGrid4);
+     gridContainer.add(vGrid1);
+     gridContainer.add(vGrid2);
+     gridContainer.add(vGrid3);
+     gridContainer.add(vGrid4);
+     gridContainer.add(vGrid5);
+     gridContainer.add(vGrid6);
+     gridContainer.add(vGrid7);
+     gridContainer.add(vGrid8);
+     gridContainer.add(vGrid9);
+     gridContainer.add(vGrid10);
+     gridContainer.add(vGrid11);
+     gridContainer.add(vGrid12);
+     gridContainer.add(vGrid13);
+     gridContainer.add(vGrid14);
+     gridContainer.add(vGrid15);
+     gridContainer.add(vGrid16);
+     
+     //and hide it until it is enabled by the user via the gridButton
+     gridContainer.visible = false;
+     
+ 	this.add.text(10, 255, 'Frame 1', { fontFamily: '"Roboto Condensed"' ,color:'red'});
+ 	this.add.text(310, 255, 'Frame 2', { fontFamily: '"Roboto Condensed"' ,color:'blue'});
+ 	this.add.text(605, 255, 'Frame 3', { fontFamily: '"Roboto Condensed"' ,color:'green'});
+ 	this.add.text(910, 255, 'Viewing Frame', { fontFamily: '"Roboto Condensed"' ,color:'black'});
+ 	
+ 	//Shape Library Controls
+	var buttonCircle = this.add.image(30,295,'buttonCircle').setInteractive().setScale(0.23);
+     
+	var buttonSquare = this.add.image(65,295,'buttonSquare').setInteractive().setScale(0.23);
+     
+	var buttonTriangle = this.add.image(30,330,'buttonTriangle').setInteractive().setScale(0.23);
+     
+    var buttonStar = this.add.image(65,330,'buttonStar').setInteractive().setScale(0.23);
+	
+    var hButton = this.add.image(100,295,'hButton').setInteractive().setScale(0.23);
+     
+	var vButton = this.add.image(100,330,'vButton').setInteractive().setScale(0.23);
+     
+    //These relate to changing/copying existing shapes
+	var buttonDelete = this.add.image(150,295,'buttonDelete').setInteractive().setScale(0.23);
+     
+	var buttonCopy = this.add.image(185,295,'copyButton').setInteractive().setScale(0.23);
+     
+	var buttonPaint= this.add.image(150,330,'paintButton').setInteractive().setScale(0.23);
+     
+    //These relate to the viewing of the canvas
+    var buttonGhost = this.add.image(235,315,'ghostButton').setInteractive().setScale(0.23);
+     
+    var gridButton = this.add.image(270,315,'gridButton').setInteractive().setScale(0.23);
+	
+	
+	//Color Selector (Phaser)
+	//this.add.text(185,270,"Color Picker",{ fontFamily: '"Roboto Condensed"' ,color:'black'})
+    //var currentColorIcon = this.add.image(240,310,'rectangle').setScale(2).setTint(currentColor);
+   	//var buttonColor = this.add.image(205,310,'buttonColor').setInteractive();
+	
+	//Size selectors
+	this.add.text(315,275,"Shape Size:",{ fontFamily: '"Roboto Condensed"' ,color:'black'});
+     
+	var smallSelect = this.add.image(330,315,'smallButton').setInteractive().setScale(0.23);
+     
+	var medSelect = this.add.image(365,315,'medButton').setInteractive().setTint(clickColor).setScale(0.23);
+     
+	var largeSelect = this.add.image(400,315,'largeButton').setInteractive().setScale(0.23);
+	
+	//Create a text strip for 'notifications'
+	var message = this.add.text(530,325,defaultMessage,{ fontFamily: '"Roboto Condensed"' ,color:'black'});
+     
+	var message2 = this.add.text(530,305,"",{ fontFamily: '"Roboto Condensed"' ,color:'red'});
+	pointerPos = this.add.text(530,290,text,{ fontFamily: '"Roboto Condensed"' ,color:'black'});
+
+	//Flip button
+    var beginFlip = this.add.image(1120,300,'beginFlip').setScale(0.5).setInteractive();
+     
+    //This function handles all of the item placing. It checks what variables  have been set by the controls and performs actions based on that.  placeItem specifies what shape to place (if any) on a click on the background. It also handles what frame they get added to (AKA what container) and does the proper manipulations to make the palcement work smoothly
+    back.on('pointerdown',function(pointer) {
+    if (pointer.y < 257 && placeItem != "") {
+        var count = 0;
+         if (pointer.x <= 300){
+            var adjustedX = pointer.x;
+            var adjustedY = pointer.y;
+            if (count == 0) {
+                if (placeItem == "circle") {
+                    tempShape = gameSpace.add.circle(adjustedX, adjustedY,shapeSize*15,currentColor).setInteractive();
+                } else if (placeItem == "square") {
+                    tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,shapeSize*30,shapeSize*30,currentColor).setInteractive();
+                } else if (placeItem == "star") {
+                    tempShape = gameSpace.add.star(adjustedX, adjustedY, 5, shapeSize*10, shapeSize*26, currentColor).setInteractive();
+                } else if (placeItem == "triangle") {
+                    tempShape = gameSpace.add.triangle(adjustedX, adjustedY,0,shapeSize*30,shapeSize*30,shapeSize*30,0,0,currentColor).setInteractive();
+                } else if (placeItem == "hline") {
+                    tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,shapeSize*70,2,currentColor).setInteractive();
+                } else if (placeItem == "vline") {
+                    tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,2,shapeSize*70,currentColor).setInteractive();
+                }
+                gameSpace.input.setDraggable(tempShape);
+                container1.add(tempShape);
+                count += 1;
+                }
+            } else if (pointer.x >= 300 && pointer.x <= 597){
+                var adjustedX = pointer.x - 300;
+                var adjustedY = pointer.y;
+                if (count == 0) {
+                    if (placeItem == "circle") {
+                        tempShape = gameSpace.add.circle(adjustedX, adjustedY,shapeSize*15,currentColor).setInteractive();
+                    } else if (placeItem == "square") {
+                        tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,shapeSize*30,shapeSize*30,currentColor).setInteractive();
+                    } else if (placeItem == "star") {
+                        tempShape = gameSpace.add.star(adjustedX, adjustedY, 5, shapeSize*10, shapeSize*26, currentColor).setInteractive();
+                    } else if (placeItem == "triangle") {
+                        tempShape = gameSpace.add.triangle(adjustedX, adjustedY,0,shapeSize*30,shapeSize*30,shapeSize*30,0,0,currentColor).setInteractive();
+                    } else if (placeItem == "hline") {
+                        tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,shapeSize*70,2,currentColor).setInteractive();
+                    } else if (placeItem == "vline") {
+                        tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,2,shapeSize*70,currentColor).setInteractive();
+                    }
+                    gameSpace.input.setDraggable(tempShape);
+                    container2.add(tempShape);
+                    count += 1;
+                    }
+            } else if (pointer.x >= 597 && pointer.x <= 896){
+                var adjustedX = pointer.x - 597;
+                var adjustedY = pointer.y;
+                if (count == 0) {
+                    if (placeItem == "circle") {
+                        tempShape = gameSpace.add.circle(adjustedX, adjustedY,shapeSize*15,currentColor).setInteractive();
+                    } else if (placeItem == "square") {
+                        tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,shapeSize*30,shapeSize*30,currentColor).setInteractive();
+                    } else if (placeItem == "star") {
+                        tempShape = gameSpace.add.star(adjustedX, adjustedY, 5, shapeSize*10, shapeSize*26, currentColor).setInteractive();
+                    } else if (placeItem == "triangle") {
+                        tempShape = gameSpace.add.triangle(adjustedX, adjustedY,0,shapeSize*30,shapeSize*30,shapeSize*30,0,0,currentColor).setInteractive();
+                    } else if (placeItem == "hline") {
+                        tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,shapeSize*70,2,currentColor).setInteractive();
+                    } else if (placeItem == "vline") {
+                        tempShape = gameSpace.add.rectangle(adjustedX, adjustedY,2,shapeSize*70,currentColor).setInteractive();
+                    }
+                    gameSpace.input.setDraggable(tempShape);
+                    container3.add(tempShape);
+                    count += 1;
+                    }
+            }  
+    }  
+    });
+    
+    //Create a test shape, make it draggable, add it to container1
+//     var tempShape = this.add.sprite(100,100,'square').setInteractive();
+//     this.input.setDraggable(tempShape);
+//  	container1.add(tempShape);
+
+
+    //Here is where items are deleted, copied, recolored, or moved. If one of the variables delItem, repaint, or copyItem are set to 1 (only one can be set at a time, and the controls have been set in such a way to ensure this) then it performs the associated action. When they are not set then the item is dragged instead of an action being performed on it. When an Item is dragged when the shape-library placement toggle is set it will remove the "toggle" tint form the button and reset the placeItem variable to be empty. Is it the cleanest way? No, but it works. It would be better to move that sort of easily repeated function into a seperate function to be called later... but this works and I don't want to mess it up by trying this. It also stores the beginning position of the objects X so I know what frame it started in (in case the user goes to another frame with it, so it can be moved to the proper container). This mostly works on touch screens though sometimes a touchscreen device requires an extra tap for the virtual mouse to "let go" of the object during dragging.
+    this.input.on('dragstart', function (pointer, gameObject) {
+		
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        placeItem = ""
+        
+        dragXstart = pointer.x
+        
+    	if (copyItem == 1){
+    	//HOW DO I DEEP COPY THIS????????? 
+    		var object2Copy = Object.assign(gameObject);
+    		//message.setText("Click on the frame to copy to");
+    		container2.add(object2Copy);
+    	} else if (delItem == 1){
+    		gameObject.destroy()
+    	} else if (repaint == 1) {
+    		gameObject.setFillStyle(currentColor);
+    	}
+//     	if (pointer.x <= 300){
+// 			MaxXTop = 300;
+// 			MaxXLow = 0;
+// 		} else if (pointer.x <= 597 && pointer.x >= 300){
+// 			MaxXTop = 597;
+// 			MaxXLow = 300;
+// 		} else if (pointer.x <= 896 && pointer.x >= 597){
+// 			MaxXTop = 896;
+// 			MaxXLow = 597;
+// 		}
+// 		message.setText([MaxXLow + " " + MaxXTop])
+
+    });
+    
+//     this.input.on('pointerdown',function(pointer){
+//     	if (pointer.rightButtonDown() && delItem == 1){
+//     		this.destroy()
+//     	}
+//     });
+
+    //This is what actually sets the gameObject's position as it is dragged. It is from the phaser example library.
+    this.input.on('drag', function (pointer, gameObject, dragX, dragY) {
+		//while (pointer.x >= MaxXLow && pointer.x <= MaxXTop && pointer.y >= maxYNeg && pointer.y <= maxYPos ){
+		//while (true) {
+        	
+        //if (pointer.x <= MaxXLow){
+        //break
+        //}
+        //}
+        
+    		gameObject.x = dragX;
+        	gameObject.y = dragY;
+    });
+
+    // When the dragging ends I added a lot of extra code to do the checking of what frame (container) the object came from so it can be switched to the new container (if necessary). It also adjusts the X coordinate appropriately so that it does not jump around, as happened in an old version of this code. 
+    this.input.on('dragend', function (pointer, gameObject) {
+		message2.setText("")
+        message.setText(defaultMessage)
+        
+        var object2Move= Object.assign(gameObject);
+        
+        if (pointer.x < 300) {
+            if (dragXstart >= 300) {
+                if (dragXstart >= 300 && dragXstart < 597) {
+                    object2Move.x = object2Move.x + 300
+                } else if (dragXstart >= 597){
+                    object2Move.x = object2Move.x + 597
+                }
+                container1.add(object2Move);
+                devMessage = "1";
+            }
+        } else if ( pointer.x >= 300 && pointer.x < 597) {
+            if (dragXstart < 300 || dragXstart >= 597) {
+                if (dragXstart >= 597) {
+                    object2Move.x = object2Move.x + 300
+                } else if (dragXstart < 300) {
+                    object2Move.x = object2Move.x - 300
+                }
+                container2.add(object2Move);
+                devMessage = "2"
+            }
+        } else if (pointer.x >= 597 ) {
+            if (dragXstart < 597) {
+                if (dragXstart < 300) {
+                    object2Move.x = object2Move.x - 597
+                } else if ( dragXstart >= 300 && dragXstart < 597) {
+                    object2Move.x = object2Move.x - 300
+                }
+                //object2Move.x = object2Move.x - 300
+                container3.add(object2Move);
+                devMessage = "3"
+            }
+        }
+        
+        if (pointer.x >= 896) {
+            gameObject.x = gameObject.x - ((pointer.x - 896) + 45)
+        }
+        
+        if (pointer.y >= 257) {
+            gameObject.y = gameObject.y - ((pointer.y - 257) + 25)
+        }
+
+    });
+    
+	// These are shape functions. They just set variables not, instead of controlling the actual placement of shapes. They are mostly identical, save for wordings (as that depends on the shape desired). This first one has comments for clarity
+    buttonCircle.on('pointerover', function () {this.setTint(onColor);});
+    buttonCircle.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+        
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        
+        //Clears these controls to prevent conflicts. Their variables are reset and the buttons have their tinted "toggle" removed. 
+        copyItem = 0;
+        delItem = 0;
+        repaint = 0;
+        buttonDelete.clearTint();
+        buttonPaint.clearTint();
+        buttonCopy.clearTint();
+        
+        //Sets the notification for the user
+    	message.setText("Click in the desired frame to add the Circle");
+        
+        //Checks what the variable placeItem is set to so that way it knows how to proceed. If the variable equals "circle" the toggle now needs to be turned off, so it does so. If it was set for another shape (i.e. "square") it is now going to be set for placing circles. 
+         if (placeItem == "circle") {
+             placeItem = ""
+             message.setText(defaultMessage)
+         } else {
+             placeItem = "circle"
+         }
+    	//while (placeItem == 1) {
+//            back.on('pointerdown', function (pointer) {
+//                
+//            if (pointer.x <= 300){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container1.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 300 && pointer.x <= 597){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-300, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container2.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 597 && pointer.x <= 896){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-597, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container3.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                }
+//                });
+            
+            //buttonCircle.on('pointerdown',function(){
+                //placeItem = 0;
+            //});
+		
+        //}
+			
+		
+    	}); 
+    //Handles whether or not to clear certain tints when the mouse leaves. It checks the placeItem variable for this. If it is set to "circle" then we don't want to remove the "toggle" tint. The code for both of these is similar.
+    buttonCircle.on('pointerout', function () {
+        if (placeItem != "circle"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    buttonCircle.on('pointerup', function () {        
+        if (placeItem != "circle"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+     
+    buttonSquare.on('pointerover', function () {this.setTint(onColor);});
+    buttonSquare.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+        
+        copyItem = 0;
+        delItem = 0;
+        repaint = 0;
+        buttonDelete.clearTint();
+        buttonPaint.clearTint();
+        buttonCopy.clearTint();
+        
+        buttonCircle.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        
+    	message.setText("Click in the desired frame to add the Square");
+        
+         if (placeItem == "square") {
+             placeItem = ""
+             message.setText(defaultMessage)
+         } else {
+             placeItem = "square"
+         }
+    	//while (placeItem == 1) {
+//            back.on('pointerdown', function (pointer) {
+//                
+//            if (pointer.x <= 300){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container1.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 300 && pointer.x <= 597){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-300, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container2.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 597 && pointer.x <= 896){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-597, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container3.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                }
+//                });
+            
+            //buttonCircle.on('pointerdown',function(){
+                //placeItem = 0;
+            //});
+		
+        //}
+			
+		
+    	});   	
+    buttonSquare.on('pointerout', function () {
+        if (placeItem != "square"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    buttonSquare.on('pointerup', function () {        
+        if (placeItem != "square"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });     
+
+    buttonTriangle.on('pointerover', function () {this.setTint(onColor);});
+    buttonTriangle.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+
+        copyItem = 0;
+        delItem = 0;
+        repaint = 0;
+        buttonDelete.clearTint();
+        buttonPaint.clearTint();
+        buttonCopy.clearTint();
+        
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        
+    	message.setText("Click in the desired frame to add the Triangle");
+        
+         if (placeItem == "triangle") {
+             placeItem = ""
+             message.setText(defaultMessage)
+         } else {
+             placeItem = "triangle"
+         }
+    	//while (placeItem == 1) {
+//            back.on('pointerdown', function (pointer) {
+//                
+//            if (pointer.x <= 300){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container1.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 300 && pointer.x <= 597){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-300, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container2.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 597 && pointer.x <= 896){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-597, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container3.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                }
+//                });
+            
+            //buttonCircle.on('pointerdown',function(){
+                //placeItem = 0;
+            //});
+		
+        //}
+			
+		
+    	});   	
+    buttonTriangle.on('pointerout', function () {
+        if (placeItem != "triangle"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    buttonTriangle.on('pointerup', function () {        
+        if (placeItem != "triangle"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+     
+    buttonStar.on('pointerover', function () {this.setTint(onColor);});
+    buttonStar.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+        
+        copyItem = 0;
+        delItem = 0;
+        repaint = 0;
+        buttonDelete.clearTint();
+        buttonPaint.clearTint();
+        buttonCopy.clearTint();
+        
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        
+    	message.setText("Click in the desired frame to add the Star");
+        
+         if (placeItem == "star") {
+             placeItem = ""
+             message.setText(defaultMessage)
+         } else {
+             placeItem = "star"
+         }
+    	//while (placeItem == 1) {
+//            back.on('pointerdown', function (pointer) {
+//                
+//            if (pointer.x <= 300){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container1.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 300 && pointer.x <= 597){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-300, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container2.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 597 && pointer.x <= 896){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-597, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container3.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                }
+//                });
+            
+            //buttonCircle.on('pointerdown',function(){
+                //placeItem = 0;
+            //});
+		
+        //}
+			
+		
+    	});   	
+    buttonStar.on('pointerout', function () {
+        if (placeItem != "star"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    buttonStar.on('pointerup', function () {        
+        if (placeItem != "star"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+     
+    hButton.on('pointerover', function () {this.setTint(onColor);});
+    hButton.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+        
+        copyItem = 0;
+        delItem = 0;
+        repaint = 0;
+        buttonDelete.clearTint();
+        buttonPaint.clearTint();
+        buttonCopy.clearTint();
+        
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        vButton.clearTint();
+        
+    	message.setText("Click in the desired frame to add the horizontal line");
+        
+         if (placeItem == "hline") {
+             placeItem = ""
+             message.setText(defaultMessage)
+         } else {
+             placeItem = "hline"
+         }
+    	//while (placeItem == 1) {
+//            back.on('pointerdown', function (pointer) {
+//                
+//            if (pointer.x <= 300){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container1.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 300 && pointer.x <= 597){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-300, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container2.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 597 && pointer.x <= 896){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-597, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container3.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                }
+//                });
+            
+            //buttonCircle.on('pointerdown',function(){
+                //placeItem = 0;
+            //});
+		
+        //}
+			
+		
+    	});   	
+    hButton.on('pointerout', function () {
+        if (placeItem != "hline"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    hButton.on('pointerup', function () {        
+        if (placeItem != "hline"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+     
+    vButton.on('pointerover', function () {this.setTint(onColor);});
+    vButton.on('pointerdown', function (pointer) {
+    	this.setTint(clickColor);
+        
+        copyItem = 0;
+        delItem = 0;
+        repaint = 0;
+        buttonDelete.clearTint();
+        buttonPaint.clearTint();
+        buttonCopy.clearTint();
+        
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        
+    	message.setText("Click in the desired frame to add the vertical line");
+        
+         if (placeItem == "vline") {
+             placeItem = ""
+             message.setText(defaultMessage)
+         } else {
+             placeItem = "vline"
+         }
+    	//while (placeItem == 1) {
+//            back.on('pointerdown', function (pointer) {
+//                
+//            if (pointer.x <= 300){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container1.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 300 && pointer.x <= 597){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-300, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container2.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                } else if (pointer.x >= 597 && pointer.x <= 896){
+//                if (count == 0) {
+//                    tempShape = gameSpace.add.circle(pointer.x-597, pointer.y,shapeSize*15,currentColor).setInteractive();
+//                    gameSpace.input.setDraggable(tempShape);
+//                    container3.add(tempShape);
+//                    count += 1;
+//                    message.setText(defaultMessage)
+//                    }
+//                }
+//                });
+            
+            //buttonCircle.on('pointerdown',function(){
+                //placeItem = 0;
+            //});
+		
+        //}
+			
+		
+    	});   	
+    vButton.on('pointerout', function () {
+        if (placeItem != "vline"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    vButton.on('pointerup', function () {        
+        if (placeItem != "vline"){
+            this.clearTint();
+        } else {
+            this.setTint(clickColor)
+        }
+    });
+    
+//    buttonCircle.on('pointerover', function () {this.setTint(onColor);});
+//    buttonCircle.on('pointerdown', function () {buttonCircle = this.add.image(30,295,'buttonCircleOn').setInteractive();});
+//    buttonCircle.on('pointerout', function () {this.clearTint();});
+//    buttonCircle.on('pointerup', function () {buttonCircle = this.add.image(30,295,'buttonCircle').setInteractive();});
+
+//    buttonCircle.on('pointerover', setOn());
+//   buttonCircle.on('pointerdown', setClickColor());
+//    buttonCircle.on('pointerout', clearTints();
+//    buttonCircle.on('pointerup', clearTints();
+   
+    
+	/*
+    buttonColor.on('pointerover', function () {this.setTint(onColor);});
+    buttonColor.on('pointerdown', function () {
+    	this.setTint(clickColor);
+    	if (currentColor == 0x000000){
+    		currentColor = 0x660066;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0x660066){
+			currentColor = 0xff0000;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0xff0000){
+			currentColor = 0xff6600;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0xff6600){
+			currentColor = 0xffff00;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0xffff00){
+			currentColor = 0x66ff66;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0x66ff66){
+			currentColor = 0x008000;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0x008000){
+			currentColor = 0x00ffff;
+    		currentColorIcon.setTint(currentColor);
+    	} else if (currentColor == 0x00ffff){
+			currentColor = 0xffffff;
+    		currentColorIcon.setTint(currentColor);
+		} else if (currentColor == 0xffffff){
+			currentColor = 0x000000;
+    		currentColorIcon.setTint(currentColor);
+		}
+    });
+    buttonColor.on('pointerout', function () {this.clearTint();});
+    buttonColor.on('pointerup', function () {this.clearTint();});
+    */
+    
+    //These buttons relate to the manipulation of shapes and are very similar in funciton to the functions dealing with the placement of shapes, as they also deal with setting variables. They just have seperate variables and they do clearing of other controls to avoid conflicts. They are all very similar save for the variables and wording they work with.
+    buttonDelete.on('pointerover', function () {this.setTint(onColor);});
+    buttonDelete.on('pointerdown', function () {
+        
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        placeItem = ""
+        
+    		if (delItem == 0){
+				delItem = 1;
+				buttonDelete.setTint(clickColor);
+				message.setText("Click the objects to delete them.")
+				if (copyItem == 1) {
+					copyItem = 0;
+					buttonCopy.clearTint()
+				} if (repaint == 1) {
+				 	repaint = 0;
+				 	buttonPaint.clearTint();
+				}
+				
+			} else if (delItem == 1){
+				delItem = 0;
+				buttonDelete.clearTint();
+				message.setText(defaultMessage)
+			
+			//gameObject.on('pointerdown',function(){this.Destroy();})
+				
+			}
+		});
+    buttonDelete.on('pointerout', function () {    	
+    if (delItem == 1) {
+    		buttonDelete.setTint(clickColor);
+    	} else if (delItem == 0){
+    		buttonDelete.clearTint();
+    		}
+    	});
+    buttonDelete.on('pointerup', function () {
+        if (delItem == 1) {
+    		buttonDelete.setTint(clickColor);
+    	} else if (delItem == 0){
+    		buttonDelete.clearTint();
+    		}
+    	});
+    	
+    buttonPaint.on('pointerover', function () {this.setTint(onColor);});
+    buttonPaint.on('pointerdown', function () {  
+
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        placeItem = ""
+        
+    		if (repaint == 0){
+				repaint = 1;
+				buttonPaint.setTint(clickColor);
+				message.setText("Click the objects to repaint them.")
+				if (copyItem == 1) {
+					copyItem = 0;
+					buttonCopy.clearTint()
+				} if (delItem == 1) {
+				 	delItem = 0;
+				 	buttonDelete.clearTint();
+				}
+				
+			} else if (repaint == 1){
+				repaint = 0;
+				buttonDelete.clearTint();
+				message.setText(defaultMessage)
+			
+			//gameObject.on('pointerdown',function(){this.Destroy();})
+				
+			}
+		});
+    buttonPaint.on('pointerout', function () {    	
+    if (repaint == 1) {
+    		buttonPaint.setTint(clickColor);
+    	} else if (repaint == 0){
+    		buttonPaint.clearTint();
+    		}
+    	});
+    buttonPaint.on('pointerup', function () {
+        if (repaint == 1) {
+    		buttonPaint.setTint(clickColor);
+    	} else if (repaint == 0){
+    		buttonPaint.clearTint();
+    		}
+    	});
+    	
+	buttonCopy.on('pointerover', function () {this.setTint(onColor);});
+    buttonCopy.on('pointerdown', function () {  
+        
+        buttonCircle.clearTint();
+        buttonSquare.clearTint();
+        buttonTriangle.clearTint();
+        buttonStar.clearTint();
+        hButton.clearTint();
+        vButton.clearTint();
+        placeItem = ""
+        
+    		if (copyItem == 0){
+				copyItem = 1;
+				buttonCopy.setTint(clickColor);
+				message.setText("Click the objects to copy them.")
+				if (delItem = 1){
+					delItem = 0
+					buttonDelete.clearTint()
+				} if (repaint == 1) {
+				 	repaint = 0;
+				 	buttonPaint.clearTint();
+				}
+				
+			} else if (copyItem == 1){
+				copyItem = 0;
+				buttonCopy.clearTint();
+				message.setText(defaultMessage)
+		
+			}
+		});
+    buttonCopy.on('pointerout', function () {        
+    if (copyItem == 1) {
+    		buttonCopy.setTint(clickColor);
+    	} else if (copyItem == 0){
+    		buttonCopy.clearTint();
+    		}
+    	});
+    buttonCopy.on('pointerup', function () {
+        if (copyItem == 1) {
+    		buttonCopy.setTint(clickColor);
+    	} else if (copyItem == 0){
+    		buttonCopy.clearTint();
+    		}
+    	});
+    
+    //Aside from working with the tints, this function has not been set yet.
+    beginFlip.on('pointerover', function () {this.setTint(onColor);});
+    beginFlip.on('pointerdown', function () {this.setTint(clickColor);});
+    beginFlip.on('pointerout', function () {this.clearTint();});
+    beginFlip.on('pointerup', function () {this.clearTint();});
+     
+    //Along with working with the normal setting of tints on the button, it makes the grid container visible or invisible - thats basically it. 
+    gridButton.on('pointerover', function () {this.setTint(onColor);});
+    gridButton.on('pointerdown', function () {
+        this.setTint(clickColor);
+        if (grid==0) {
+            grid = 1;
+             gridContainer.visible = true;
+            
+        } else if (grid == 1){
+            gridContainer.visible = false;
+            grid = 0;
+            this.clearTint();
+        }
+                                            });
+    gridButton.on('pointerout', function () {
+        if (grid == 0) {this.clearTint();}
+        else if (grid==1) { this.setTint(clickColor);}
+                                            });
+    gridButton.on('pointerup', function () {
+        if (grid == 0) {this.clearTint();}
+        else if (grid==1) { this.setTint(clickColor);}
+                                            });
+	
+    //These functions work with 2 variables: size and shapeSize. size is a letter that is an easy way of telling with size has been set, while shapeSize is a number that is used in the generating of shapes to manipulat the numerical values used to set their size. They check what size equals in order to know what tints to clear, then set the shape size. The code for all 3 is very similar, the small details differ to match what they should be setting. 
+	smallSelect.on('pointerover', function () {this.setTint(onColor);});
+    smallSelect.on('pointerdown', function () {
+        //Set what the size should now be
+    	size = "s";
+    	this.setTint(clickColor);
+        //Check what size is set to know what to do..
+        //Example: if size = "s" then the small size button needs to have the "toggle" tint, and the size needs to be 0.75, and the other buttons need to be cleared. 
+        //The reason it was done this way is because then this IF statement can be copied amongst the functions for easier coding and each button just needs to set what the new size should be in the beginning before it is run. Then the If statement handles the majority of the work.
+		if (size == "s") {
+			smallSelect.setTint(clickColor);
+			medSelect.clearTint();
+			largeSelect.clearTint();
+			shapeSize = 0.75;
+		} else if (size == "m") {
+			smallSelect.clearTint();
+			medSelect.setTint(clickColor);
+			largeSelect.clearTint();
+			shapeSize = 1;
+		} else if (size == "l") {
+			size = "l"
+			smallSelect.clearTint();
+			medSelect.clearTint();
+			largeSelect.setTint(clickColor);
+			shapeSize = 1.25;
+		}
+	});
+    smallSelect.on('pointerout', function ()     	{
+		if (size == "m") {
+			this.clearTint();
+		} else if (size == "l") {
+			this.clearTint();
+		} else if (size == "s") {
+			this.setTint(clickColor);
+		}
+	});
+    smallSelect.on('pointerup', function ()     	{
+		 if (size == "m") {
+		 this.clearTint();
+		} else if (size == "l") {
+		this.clearTint();
+		}
+	});
+	
+	medSelect.on('pointerover', function () {this.setTint(onColor);});
+    medSelect.on('pointerdown', function () {
+    	size= "m";
+    	this.setTint(clickColor);
+		if (size == "s") {
+			smallSelect.setTint(clickColor);
+			medSelect.clearTint();
+			largeSelect.clearTint();
+			shapeSize = 0.75;
+		} else if (size == "m") {
+			smallSelect.clearTint();
+			medSelect.setTint(clickColor);
+			largeSelect.clearTint();
+			shapeSize = 1;
+		} else if (size == "l") {
+			size = "l"
+			smallSelect.clearTint();
+			medSelect.clearTint();
+			largeSelect.setTint(clickColor);
+			shapeSize = 1.25;
+		}
+	});
+    medSelect.on('pointerout', function ()     	{
+		if (size == "s") {
+			this.clearTint();
+		} else if (size == "l") {
+			this.clearTint();
+		} else if (size == "m") {
+			this.setTint(clickColor);
+		}
+	});
+    medSelect.on('pointerup', function ()     	{
+		if (size == "s") {
+			this.clearTint();
+		} else if (size == "l") {
+			this.clearTint();
+		} else if (size == "m") {
+			this.setTint(clickColor);
+		}
+	});
+	
+	largeSelect.on('pointerover', function () {this.setTint(onColor);});
+    largeSelect.on('pointerdown', function () {
+    	this.setTint(clickColor);
+    	size = "l";
+		if (size == "s") {
+			smallSelect.setTint(clickColor);
+			medSelect.clearTint();
+			largeSelect.clearTint();
+			shapeSize = 0.75;
+		} else if (size == "m") {
+			smallSelect.clearTint();
+			medSelect.setTint(clickColor);
+			largeSelect.clearTint();
+			shapeSize = 1;
+		} else if (size == "l") {
+			size = "l"
+			smallSelect.clearTint();
+			medSelect.clearTint();
+			largeSelect.setTint(clickColor);
+			shapeSize = 1.25;
+		}
+	});
+    largeSelect.on('pointerout', function ()     	{
+		if (size == "m") {
+			this.clearTint();
+		} else if (size == "s") {
+			this.clearTint();
+		} else if (size == "l") {
+			this.setTint(clickColor);
+		}
+	});
+    largeSelect.on('pointerup', function ()     	{
+		if (size == "m") {
+			this.clearTint();
+		} else if (size == "s") {
+			this.clearTint();
+		} else if (size == "l") {
+			this.setTint(clickColor);
+		}
+	});
+
+    //Not yet set to do anything.
+	buttonGhost.on('pointerover', function () {this.setTint(onColor);});
+    buttonGhost.on('pointerdown', function () {
+    		if (ghost == 0){
+				ghost = 1;
+				this.setTint(clickColor);
+				defaultMessage = "Ghost Mode is ON";
+    			message.setText(defaultMessage);
+			} else if (ghost == 1){
+				ghost = 0;
+				this.clearTint();
+		    	defaultMessage = "Messages will appear here!";
+    			message.setText(defaultMessage);
+			}
+		});
+    buttonGhost.on('pointerout', function () {
+    	if (ghost == 1) {
+    		this.setTint(clickColor);
+    	} else if (ghost == 0){
+    		this.clearTint();
+    		}
+    	});
+    buttonGhost.on('pointerup', function () {
+        	if (ghost == 1) {
+    		this.setTint(clickColor);
+    	} else if (ghost == 0){
+    		this.clearTint();
+    		}
+    	});
+
+	
+	function switchGhost(){
+		if (ghost == 0){
+			ghost = 1;
+			this.setTint(clickColor);
+		} else {
+			ghost = 0;
+			this.clearTint();
+		}
+	}
+	
+/* 
+	function copyObject(object2Copy){
+			if (object2Copy in container1) {
+				container2.add(object2Copy);
+				container3.add(object2Copy);
+			} else if (object2Copy in container2){
+				container1.add(object2Copy);
+				container3.add(object2Copy);
+			} else {
+				container1.add(object2Copy);
+				container2.add(object2Copy);
+			}
+		
+		}
+ */
+	
+}
+
+
+	function update (){
+	//To track the pointer position for the dev message center
+	var pointer = this.input.activePointer;
+    //To update the dev messages to help with coding and laying things out, as well as checking colors
+    pointerPos.setText(['Dev messages - x: ' + pointer.worldX + '   y: ' + pointer.worldY + " " + dragXstart + " Moved to frame " + devMessage]);
+    
+    //These two lines handle the conversion of the color returned by the color picker to a color code that phaser wol work with. It simply strips the # off the color picker's returned value and appends 0x to the beginning to make it a hex value. Not sure why this needs to be done at all, or why phaser wouldn't just take the color as is, but it works like this so why complain. 
+    temp = colorPicker.value;
+	currentColor = String("0x"+temp.substring(1, 8));
+	
+	
+	}
+	
+	function setMessage(message){
+		if (messages1 == "" && messages2 == "" && messages3 == "") {
+			message.setText(defaultMessage)
+		} else {
+			message.setText([messages1 + messages2 + messages3])
+		}
+	
+	}
+
+
+</script>
+</body>
+</html>
